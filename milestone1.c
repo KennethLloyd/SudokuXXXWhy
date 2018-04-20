@@ -103,7 +103,7 @@ void findSolution(int size, int **puzzle){
             npossible = checkPossible(candidates, solTypes[h], rowcolTotal, row, col, grid);
           }
 
-          getSubgrid(j, row, col, size, numArr, subgrids);
+          getSubgrid(move, row, col, size, numArr, subgrids);
 
           if(npossible == 1){
             options[move][++noptions[move]] = candidates[0];
