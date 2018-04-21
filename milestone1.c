@@ -1,7 +1,7 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 void findSolution(int, int **);
 int checkPossible(int *, char*, int, int, int, int **);
@@ -36,6 +36,7 @@ int main(){
   }
 
   for(i=0; i<n; i++){
+    printf("\nPUZZLE %d\n",(i+1));
     for(j=0; j<subgridSize[i]*subgridSize[i]; j++){
       for(k=0; k<subgridSize[i]*subgridSize[i]; k++){
         printf("%d ", puzzles[i][j][k]);
@@ -52,6 +53,7 @@ void findSolution(int size, int **puzzle){
   int rowcolTotal = (int)pow(size, 2);  //Number of elements per move/column
   int noptions[gridTotal+2];
   int options[gridTotal+2][rowcolTotal+2];
+  int solCounter = 0;
   int **grid = puzzle, **numArr;
   char * solTypes[] = {"regular", "x", "y", "xy"};  //Four Types of Solution (Mutually Exclusive?)
   candidates = (int*) malloc(sizeof(int)*rowcolTotal);
@@ -62,6 +64,16 @@ void findSolution(int size, int **puzzle){
     numArr[i] = (int*) malloc(sizeof(int)*rowcolTotal);
     for(j=0; j<rowcolTotal; j++){
       numArr[i][j] = ++count;
+    }
+  }
+
+  for (i=0;i<gridTotal+2;i++) {
+    noptions[i] = 0;
+  }
+
+  for (i=0;i<gridTotal+2;i++) {
+    for (j=0;j<rowcolTotal+2;j++) {
+      options[i][j] = 0;
     }
   }
 
@@ -77,11 +89,15 @@ void findSolution(int size, int **puzzle){
         noptions[move]=0; //initialize new move-1
 
         if(move == gridTotal+1){ //solution found
+          printf("SOLUTION %d\n",(solCounter+1));
           for(i=1;i<move;i++){
             printf("%2i",options[i][noptions[i]]);
             if(i%rowcolTotal == 0) printf("\n");
           }
-          printf("\n");
+          printf(" ");
+          solCounter++;
+          move--; //go back to the last cell
+          noptions[move]--; //pop
         }
         else if(move == 1){
           npossible = checkPossible(candidates, solTypes[h], rowcolTotal, move/rowcolTotal, (move%rowcolTotal)-1, grid);
@@ -111,19 +127,33 @@ void findSolution(int size, int **puzzle){
             for(i=1; i<npossible; i++){
               for(j=move-1; j>=1; j--){
                 if(inSubgrid(j, rowcolTotal, subgrids)){
-                  if(candidates[i-1] == options[j][noptions[j]]) break;
+                  if(candidates[i-1] == options[j][noptions[j]]) {
+                    break;
+                  }
                 }
-                if(move%rowcolTotal == 0){
-                  if(j>(move-rowcolTotal) || (j == (move-rowcolTotal))){
-                    if(candidates[i-1] == options[j][noptions[j]]) break;
+                if(move%rowcolTotal == 0){ //last column
+                  if(j>(move-rowcolTotal) || (move-j)%rowcolTotal == 0){
+                    if(candidates[i-1] == options[j][noptions[j]]) {
+                      break;
+                    }
                   }
-                }else if(move%rowcolTotal == 1){
+                }else if(move%rowcolTotal == 1){ //first column
                   if((move-j)%rowcolTotal == 0){
-                    if(candidates[i-1] == options[j][noptions[j]]) break;
+                    if(candidates[i-1] == options[j][noptions[j]]) {
+                      break;
+                    }
                   }
-                }else{
-                  if((j%rowcolTotal!=0 && j >= move-rowcolTotal) || ((move-j)%rowcolTotal == 0)){
-                    if(candidates[i-1] == options[j][noptions[j]]) break;
+                }else{ //in between
+                  int currentRow = move/rowcolTotal;
+                  int leftmostIdx = (rowcolTotal * currentRow) + 1;
+
+                  if (j >= leftmostIdx) { //same row
+                    if(candidates[i-1] == options[j][noptions[j]]) break; 
+                  }
+                  else { //not in same row
+                    if ((move-j)%rowcolTotal == 0) { //only check same column
+                      if(candidates[i-1] == options[j][noptions[j]]) break;
+                    }
                   }
                 }
               }
@@ -133,6 +163,7 @@ void findSolution(int size, int **puzzle){
             }
           }
         }
+        
         // printf("\n\nMOVE %d\n", move);
         // for(i=0; i<gridTotal+2; i++){
         //   printf("%d | ", i);
@@ -146,18 +177,10 @@ void findSolution(int size, int **puzzle){
         //   printf("\n");
         // }
         // printf("\n");
-      }else{
-        while(1){
-          move--;
-          noptions[move]--;
-          if(move == start) break;
-          if(move%rowcolTotal == 0 && grid[(move/rowcolTotal)-1][rowcolTotal-1]==0){
-            // printf("move: %d noptions: %d\n", move, noptions[move]);
-            break;
-          }else if(grid[(move/rowcolTotal)][(move%rowcolTotal)-1]==0){
-            break;
-          }
-        }
+      }
+      else{ //current stack empty, pop previous stack
+        move--;
+        noptions[move]--;
       }
     }
     //Break kasi pang regular check palang
@@ -193,13 +216,24 @@ void getSubgrid(int move, int row, int col, int subgridSize, int ** numArr, int 
   }
 }
 
+int checkSubgrid(int val, int size, int row, int col, int **grid) {
+  int startRow = (row/size)*size;
+  int startCol = (col/size)*size;
+  int i, j;
+
+  for (i=startRow;i<startRow+size;i++) {
+    for (j=startCol;j<startCol+size;j++) {
+      if (grid[i][j] == val) {
+        return 0;
+      }
+    }
+  }
+  return 1;
+}
+
 int checkPossible(int *candidates, char * solutionType, int size, int row, int col, int ** grid){
-  int i, j, k, flag, counter=0, subgridSize, startIndRow, endIndRow, startIndCol, endIndCol;
+  int i, j, k, flag, counter=0, subgridSize;
   subgridSize = sqrt(size);
-  startIndRow = (row/subgridSize)*subgridSize;
-  endIndRow = (startIndRow+subgridSize);
-  startIndCol = (col/subgridSize)*subgridSize;
-  endIndCol = (startIndCol+subgridSize);
 
   if(grid[row][col] != 0){
     *(candidates+counter) = grid[row][col];
@@ -209,9 +243,13 @@ int checkPossible(int *candidates, char * solutionType, int size, int row, int c
 
     for(i=size; i>0; i--){    //PRESORTS IN DESCENDING ORDER
       flag = 1;
+
+      flag = checkSubgrid(i, subgridSize, row, col, grid);
+      if (flag == 0) continue;
+
       for(j=0; j<size; j++){
         if(solutionType == "regular"){
-          if(grid[row][j] == i || grid[j][col] == i){
+          if(grid[row][j] == i || grid[j][col] == i) {
             flag = 0;
             break;
           }
@@ -222,15 +260,6 @@ int checkPossible(int *candidates, char * solutionType, int size, int row, int c
         }else if(solutionType == "xy"){
 
         }
-      }
-      for(k=startIndRow; k<endIndRow; k++){
-        for(j=startIndCol; j<endIndCol; j++){
-          if(grid[k][j] == i){
-            flag = 0;
-            break;
-          }
-        }
-        if(flag==0) break;
       }
       if(flag == 1){
         *(candidates+counter) = i;
