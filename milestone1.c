@@ -8,10 +8,12 @@ int checkPossible(int *, char*, int, int, int, int **);
 int compare(const void*, const void*);
 int inSubgrid(int, int, int*);
 void getSubgrid(int, int, int, int, int **, int*);
+FILE *f;
 
 int main(){
   FILE *fp;
   fp = fopen("input.txt","r");
+  f = fopen("output.txt","w");
   int i, j, k, n, counter=0;
   fscanf(fp,"%d",&n);
   char temp[250], *token, delim[2]=" ";
@@ -37,14 +39,18 @@ int main(){
 
   for(i=0; i<n; i++){
     printf("\nPUZZLE %d\n",(i+1));
+    fprintf(f,"\nPUZZLE %d\n",(i+1));
     for(j=0; j<subgridSize[i]*subgridSize[i]; j++){
       for(k=0; k<subgridSize[i]*subgridSize[i]; k++){
         printf("%d ", puzzles[i][j][k]);
+        fprintf(f,"%d ",puzzles[i][j][k]);
       }
       printf("\n");
+      fprintf(f,"\n");
     }
     findSolution(subgridSize[i], puzzles[i]);
   }
+  fclose(f);
 }
 
 void findSolution(int size, int **puzzle){
@@ -90,11 +96,18 @@ void findSolution(int size, int **puzzle){
 
         if(move == gridTotal+1){ //solution found
           printf("SOLUTION %d\n",(solCounter+1));
+          fprintf(f,"SOLUTION %d\n",(solCounter+1));
           for(i=1;i<move;i++){
             printf("%2i",options[i][noptions[i]]);
-            if(i%rowcolTotal == 0) printf("\n");
+            fprintf(f,"%2i",options[i][noptions[i]]);
+            if(i%rowcolTotal == 0){
+              printf("\n");
+              fprintf(f,"\n");
+            }
           }
           printf(" ");
+          fprintf(f," ");
+
           solCounter++;
           move--; //go back to the last cell
           noptions[move]--; //pop
