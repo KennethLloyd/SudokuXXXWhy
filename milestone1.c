@@ -214,12 +214,12 @@ void findSolution(int size, int **puzzle){
       }
     }
     //Break kasi pang regular check palang
-    free(candidates); free(subgrids);
-    for(i=0; i<rowcolTotal; i++){
-      free(numArr[i]);
-    }
-    free(numArr);
-    break;
+    // free(candidates); free(subgrids);
+    // for(i=0; i<rowcolTotal; i++){
+    //   free(numArr[i]);
+    // }
+    // free(numArr);
+    // break;
   }
 }
 
