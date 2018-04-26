@@ -88,6 +88,7 @@ void findSolution(int size, int **puzzle){
     }
 
     printf("SOLUTION %s\n", solTypes[h]);
+    fprintf(f,"SOLUTION %s\n",(solTypes[h]));
     solCounter = 0;
     move = start = 0; 
     noptions[start] = 1;
@@ -225,15 +226,24 @@ void findSolution(int size, int **puzzle){
 
 int inXGrids(int x, int row, int col, int ** numArr, int total){
   int i, j;
-  for(i=0; i<total; i++){
-    for(j=0; j<total; j++){  
-      if(row==col && i==j){
-        if(((i*total)+j+1) == x){
-          return 1;
-        }
-      }else if((col+row) == (total-1) && ((i+j)==total-1)){
-        if(((i*total)+j+1) == x){
-          return 1;
+
+  if(row==col || ((col+row) == (total-1))){
+    for(i=0; i<total; i++){
+      for(j=0; j<total; j++){  
+        if(row==col && (col+row) == (total-1)){
+          if(i==j || ((i+j)==total-1)){
+            if(((i*total)+j+1) == x){
+              return 1;
+            }
+          }
+        }else if(row==col && i==j){
+          if(((i*total)+j+1) == x){
+            return 1;
+          }
+        }else if((col+row) == (total-1) && ((i+j)==total-1)){
+          if(((i*total)+j+1) == x){
+            return 1;
+          }
         }
       }
     }
@@ -280,8 +290,12 @@ int checkSubgrid(int val, int size, int row, int col, int **grid) {
 }
 
 int checkPossible(int *candidates, char * solutionType, int size, int row, int col, int ** grid){
-  int i, j, k, flag, counter=0, subgridSize;
+  int i, j, k, flag, counter=0, subgridSize, *numcounter;
   subgridSize = sqrt(size);
+  numcounter = (int*)malloc(sizeof(int)*(size+2));
+  for(i=0; i<size+2; i++){
+    numcounter[i] = 0;
+  }
 
   if(grid[row][col] != 0){
     *(candidates+counter) = grid[row][col];
@@ -303,16 +317,28 @@ int checkPossible(int *candidates, char * solutionType, int size, int row, int c
           }
         if(solutionType == "x"){
           for(k=0; k<size; k++){
-            if(row == col){
+            if(row==col && (col+row) == (size-1)){
+              if(j==k || (j+k) == (size-1)){
+                if(grid[j][k] == i){
+                  if(numcounter[grid[j][k]] < 2){
+                    numcounter[grid[j][k]] += 1;
+                    continue;
+                  }
+                  flag = 0; break;
+                }
+              }
+            }
+            else if(row == col){
               if(j==k){
                 if(grid[j][k] == i){
                   flag = 0; break;
                 }
-              }else if((col+row) == (size-1)){
-                if((j+k) == (size-1)){
-                  if(grid[j][k] == i){
-                    flag = 0; break;
-                  }
+              }
+            }
+            else if((col+row) == (size-1)){
+              if((j+k) == (size-1)){
+                if(grid[j][k] == i){
+                  flag = 0; break;
                 }
               }
             }
@@ -332,5 +358,6 @@ int checkPossible(int *candidates, char * solutionType, int size, int row, int c
     }
   }
 
+  free(numcounter);
   return counter+1;
 }
