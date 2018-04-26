@@ -308,9 +308,11 @@ int checkPossible(int *candidates, char * solutionType, int size, int row, int c
                 if(grid[j][k] == i){
                   flag = 0; break;
                 }
-              }else if(((col+row) == (size-1))){
+              }else if((col+row) == (size-1)){
                 if((j+k) == (size-1)){
-                  flag = 0; break;
+                  if(grid[j][k] == i){
+                    flag = 0; break;
+                  }
                 }
               }
             }
