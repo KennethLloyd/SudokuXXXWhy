@@ -34,25 +34,25 @@ public class Sudoku {
 				puzzles.add(puzzle);
 			}
 
-			//bufferedWriter = new BufferedWriter(new FileWriter("output.txt"));
+			bufferedWriter = new BufferedWriter(new FileWriter("output.txt"));
 
 			for (int i=0;i<n;i++) {
 				//file writing
-				//bufferedWriter.write("PUZZLE " + (i+1) + "\n");
+				bufferedWriter.write("PUZZLE " + (i+1) + "\n");
 				ArrayList<ArrayList<Integer>> puz3 = puzzles.get(i);
 				for (int j=0;j<subgridSize.get(i)*subgridSize.get(i);j++) {
 					ArrayList<Integer> puz2 = puz3.get(j);
 					for (Integer puz1: puz2) {
-					//	bufferedWriter.write(String.valueOf(puz1) + " ");
+						bufferedWriter.write(String.valueOf(puz1) + " ");
 					}
-					///bufferedWriter.write("\n");
+					bufferedWriter.write("\n");
 				}
-				//bufferedWriter.write("\n");
+				bufferedWriter.write("\n");
 				findSolution(subgridSize.get(i),i);
 			}
 
 			bufferedReader.close();
-			//bufferedWriter.close();
+			bufferedWriter.close();
 		}
 		catch(Exception ex) {
 			ex.printStackTrace();
@@ -93,17 +93,24 @@ public class Sudoku {
 					noptions[move] = 0; //initialize new move-1
 
 					if (move == gridTotal+1) { //solution found
-						System.out.println("SOLUTION " + (solCounter+1));
-						for(i=1;i<move;i++) {
-							System.out.print(String.valueOf(options[i][noptions[i]]) + " ");
-				        	if(i % rowcolTotal == 0) {
-				        		System.out.println();
-				        	}
-				    	}
-						System.out.println("SOLUTION " + solTypes[h]);
-				    	solCounter++;
-				    	move--; //go back to the last cell
-				    	noptions[move]--; //pop
+						try {
+							bufferedWriter.write("SOLUTION " + solTypes[h] + " " + (solCounter+1) + "\n");
+							System.out.println("SOLUTION " + solTypes[h] + " " + (solCounter+1));
+							for(i=1;i<move;i++) {
+								bufferedWriter.write(String.valueOf(options[i][noptions[i]]) + " ");
+								System.out.print(String.valueOf(options[i][noptions[i]]) + " ");
+					        	if(i % rowcolTotal == 0) {
+					        		bufferedWriter.write("\n");
+					        		System.out.println();
+					        	}
+					    	}
+					    	solCounter++;
+					    	move--; //go back to the last cell
+					    	noptions[move]--; //pop
+						}
+						catch(Exception e) {
+							e.printStackTrace();
+						}
 					}
 					else if (move == 1) {
 						npossible = checkPossible(candidates, solTypes[h], rowcolTotal, move/rowcolTotal, (move%rowcolTotal)-1, grid);
