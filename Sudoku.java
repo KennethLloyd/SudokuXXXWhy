@@ -77,7 +77,6 @@ public class Sudoku {
 		    for(j=0; j<rowcolTotal; j++){
 		      numArr[i][j] = ++count;
 		    }
-		
 		}
 		for (int h=0; h<2; h++) { //limit to x and regular temporarily
 			if (solTypes[h].equals("y") && rowcolTotal%2==0) continue;
