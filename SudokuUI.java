@@ -138,6 +138,66 @@ public class SudokuUI extends JFrame {
 		bottomPanel.setSize(50, 50);
 		
 		JButton solveButton = new JButton("Solve");
+		solveButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<ArrayList<Integer>> finalGrid = new ArrayList<ArrayList<Integer>>();
+				
+				if (n != 0) { //not the default grid
+					int subSize = subgridSize.get(currentPuzzle);
+					int row = subSize*subSize;
+					int col = subSize*subSize;
+					for (int i=0;i<row;i++) {
+						ArrayList<Integer> tempGrid = new ArrayList<Integer>();
+						for (int j=0;j<col;j++) {
+							int val;
+							String textVal = grid[i][j].getText();
+							if (textVal.equals("")) { //empty cell
+								val = 0;
+							}
+							else {
+								val = Integer.parseInt(textVal); //convert to int
+							}
+							tempGrid.add(val); //copy final values from the ui grid
+						}
+						finalGrid.add(tempGrid);
+					}
+					for (int i=0;i<row;i++) {
+						for (int j=0;j<col;j++) {
+							System.out.print(finalGrid.get(i).get(j) + " ");
+						}
+						System.out.println();
+					}
+					//findSolution(subSize, finalGrid)
+				}
+				
+				else { //the default grid
+					for (int i=0;i<row;i++) {
+						ArrayList<Integer> tempGrid = new ArrayList<Integer>();
+						for (int j=0;j<col;j++) {
+							int val;
+							String textVal = grid[i][j].getText();
+							if (textVal.equals("")) { //empty cell
+								val = 0;
+							}
+							else {
+								val = Integer.parseInt(textVal); //convert to int
+							}
+							tempGrid.add(val); //copy final values from the ui grid
+						}
+						finalGrid.add(tempGrid);
+					}
+					for (int i=0;i<row;i++) {
+						for (int j=0;j<col;j++) {
+							System.out.print(finalGrid.get(i).get(j) + " ");
+						}
+						System.out.println();
+					}
+					//findSolution(subSize, finalGrid)
+				}
+				
+			}
+		});
 		bottomPanel.add(solveButton);
 		
 		panel.add(bottomPanel, BorderLayout.SOUTH);
