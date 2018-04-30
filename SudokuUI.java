@@ -23,21 +23,22 @@ public class SudokuUI extends JFrame {
 	private JTextField[][] grid = null;
 	private int currentPuzzle = -1;
 	private int n; //number of puzzles
-	int[][] numArr = new int[9][];
-	int[] subgrids = new int[9];
+	int[][] numArr;
 	private int currentSubgrid = 0;
 	private JButton nextPuzzleButton = null;
 	private JButton prevPuzzleButton = null;
 	
 	public SudokuUI() {
-		int count = 0;
 		//default
-		for(int i=0; i<9; i++){
-		    numArr[i] = new int[9];
-		    for(int j=0; j<9; j++){
-		      numArr[i][j] = -1;
-		    }
-		}
+	    int subSize = 3;
+	    int row = 9;
+	    int col = 9;
+	    
+		subgridSize = new ArrayList<Integer>();
+		subgridSize.add(subSize);
+		currentPuzzle++;
+		
+	    initSubgridLabels(row);
 		
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -89,48 +90,10 @@ public class SudokuUI extends JFrame {
 	    
 	    gridPanel = new JPanel();
 	    
-	    //default
-	    int subSize = 3;
-	    int row = 9;
-	    int col = 9;
-	    
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setBounds(100, 100, 500, 500);
 	    
-	    gridPanel.setLayout(new GridLayout(subSize,subSize,3,3));
-	    JPanel[] subPanels = new JPanel[subSize*subSize];
-	    for (int i=0;i<subSize*subSize;i++) {
-	    	subPanels[i] = new JPanel();
-	    	subPanels[i].setLayout(new GridLayout(subSize,subSize));
-	    	subPanels[i].setBorder(new LineBorder(Color.BLACK));
-	    }
-	    
-	    grid = new JTextField[row][col];
-	    for (int i=0;i<row;i++) {
-	    	for (int j=0;j<col;j++) {
-	    		getUISubgrid(i, j, 3, numArr); //label the subgrids
-	    	}
-	    }
-	    
-	    for (int i = 0; i < row; i++){
-	        for (int j = 0; j < col; j++){
-	        	int subgridNum = numArr[i][j]; //get the subgrid number generated previously
-	        	
-	            grid[i][j] = new JTextField();
-	            Font font = new Font("Segoe Script", Font.BOLD, 500/(row+col));
-	            grid[i][j].setFont(font);
-	            grid[i][j].setHorizontalAlignment(JTextField.CENTER);
-	            grid[i][j].setBorder(new LineBorder(Color.BLACK));
-	            grid[i][j].setOpaque(true);
-	            PlainDocument doc = (PlainDocument) grid[i][j].getDocument();
-	            doc.setDocumentFilter(new MyIntFilter(row));
-	      
-	            subPanels[subgridNum].add(grid[i][j]); //then place the current grid to the appropriate subgrid
-	        }
-	    }
-	    for (int i=0;i<subPanels.length;i++) {
-	    	gridPanel.add(subPanels[i]); //add each subgrid to the puzzle
-	    }
+	    initGrid(subSize, null);
 	    
 	    panel.add(gridPanel,BorderLayout.CENTER);
 	    
@@ -142,60 +105,33 @@ public class SudokuUI extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ArrayList<ArrayList<Integer>> finalGrid = new ArrayList<ArrayList<Integer>>();
+				//get updated values
+				int subSize = subgridSize.get(currentPuzzle);
+				int row = subSize*subSize;
+				int col = subSize*subSize;
 				
-				if (n != 0) { //not the default grid
-					int subSize = subgridSize.get(currentPuzzle);
-					int row = subSize*subSize;
-					int col = subSize*subSize;
-					for (int i=0;i<row;i++) {
-						ArrayList<Integer> tempGrid = new ArrayList<Integer>();
-						for (int j=0;j<col;j++) {
-							int val;
-							String textVal = grid[i][j].getText();
-							if (textVal.equals("")) { //empty cell
-								val = 0;
-							}
-							else {
-								val = Integer.parseInt(textVal); //convert to int
-							}
-							tempGrid.add(val); //copy final values from the ui grid
+				for (int i=0;i<row;i++) {
+					ArrayList<Integer> tempGrid = new ArrayList<Integer>();
+					for (int j=0;j<col;j++) {
+						int val;
+						String textVal = grid[i][j].getText();
+						if (textVal.equals("")) { //empty cell
+							val = 0;
 						}
-						finalGrid.add(tempGrid);
-					}
-					for (int i=0;i<row;i++) {
-						for (int j=0;j<col;j++) {
-							System.out.print(finalGrid.get(i).get(j) + " ");
+						else {
+							val = Integer.parseInt(textVal); //convert to int
 						}
-						System.out.println();
+						tempGrid.add(val); //copy final values from the ui grid
 					}
-					//findSolution(subSize, finalGrid)
+					finalGrid.add(tempGrid);
 				}
-				
-				else { //the default grid
-					for (int i=0;i<row;i++) {
-						ArrayList<Integer> tempGrid = new ArrayList<Integer>();
-						for (int j=0;j<col;j++) {
-							int val;
-							String textVal = grid[i][j].getText();
-							if (textVal.equals("")) { //empty cell
-								val = 0;
-							}
-							else {
-								val = Integer.parseInt(textVal); //convert to int
-							}
-							tempGrid.add(val); //copy final values from the ui grid
-						}
-						finalGrid.add(tempGrid);
+				for (int i=0;i<row;i++) {
+					for (int j=0;j<col;j++) {
+						System.out.print(finalGrid.get(i).get(j) + " ");
 					}
-					for (int i=0;i<row;i++) {
-						for (int j=0;j<col;j++) {
-							System.out.print(finalGrid.get(i).get(j) + " ");
-						}
-						System.out.println();
-					}
-					//findSolution(subSize, finalGrid)
+					System.out.println();
 				}
-				
+				//findSolution(subSize, finalGrid)
 			}
 		});
 		bottomPanel.add(solveButton);
@@ -205,7 +141,7 @@ public class SudokuUI extends JFrame {
 	    getContentPane().add(panel);
 	}
 	
-	public void getUISubgrid(int row, int col, int subgridSize, int[][] numArr){
+	public void getUISubgrid(int row, int col, int subgridSize, int[][] numArr){ //label the cells according to their subgrid number
 		int startIndRow = (row/subgridSize)*subgridSize;
 		int endIndRow = (startIndRow+subgridSize);
 		int startIndCol = (col/subgridSize)*subgridSize;
@@ -276,19 +212,31 @@ public class SudokuUI extends JFrame {
 		int squaredLen = subSize*subSize;
 		ArrayList<ArrayList<Integer>> puzzle = puzzles.get(currentPuzzle);
 		
-		for(int i=0; i<squaredLen; i++){
-		    numArr[i] = new int[squaredLen];
-		    for(int j=0; j<squaredLen; j++){
-		      numArr[i][j] = -1;
-		    }
-		}
+		initSubgridLabels(squaredLen);
 		
 		//remove all components in the panel
 		gridPanel.removeAll();
 		gridPanel.revalidate();
 		gridPanel.repaint();
 		
-		gridPanel.setLayout(new GridLayout(subSize,subSize,3,3));
+		initGrid(subSize, puzzle);
+	}
+	
+	public void initSubgridLabels(int squaredLen) {
+		numArr = new int[squaredLen][];
+		
+		for(int i=0; i<squaredLen; i++){
+		    numArr[i] = new int[squaredLen];
+		    for(int j=0; j<squaredLen; j++){
+		      numArr[i][j] = -1;
+		    }
+		}
+	}
+	
+	public void initGrid(int subSize, ArrayList<ArrayList<Integer>> puzzle) {
+		int squaredLen = subSize*subSize;
+		
+		gridPanel.setLayout(new GridLayout(subSize,subSize,5,5));
 	    JPanel[] subPanels = new JPanel[subSize*subSize];
 	    for (int i=0;i<squaredLen;i++) {
 	    	subPanels[i] = new JPanel();
@@ -313,7 +261,7 @@ public class SudokuUI extends JFrame {
 	            grid[i][j].setHorizontalAlignment(JTextField.CENTER);
 	            grid[i][j].setBorder(new LineBorder(Color.BLACK));
 	            grid[i][j].setOpaque(true);
-	            if (puzzle.get(i).get(j) != 0) { //has a given value
+	            if (puzzle != null && puzzle.get(i).get(j) != 0) { //has a given value
 	            	grid[i][j].setText(String.valueOf(puzzle.get(i).get(j))); //display
 	            	grid[i][j].setEditable(false); //cannot be changed
 	            }
