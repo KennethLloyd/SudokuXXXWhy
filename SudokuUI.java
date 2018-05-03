@@ -31,10 +31,37 @@ public class SudokuUI extends JFrame {
 	private SudokuAns sudokuAns = null;
 	
 	public SudokuUI() {
-		//default
-	    int subSize = 3;
+		//default if the user did not select a dimension
+		int subSize = 3;
 	    int row = 9;
 	    int col = 9;
+		
+		String[] gridChoices = {"4x4","9x9","16x16"};
+		String s = (String)JOptionPane.showInputDialog(this,
+				"Select default grid dimensions",
+                "Choose Grid",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                gridChoices,
+                "9x9");
+		
+		if ((s != null) && (s.length() > 0)) {
+		    if (s.equals("4x4")) {
+		    	subSize = 2;
+		    	row = 4;
+		    	col = 4;
+		    }
+		    else if (s.equals("9x9")) {
+		    	subSize = 3;
+		    	row = 9;
+		    	col = 9;
+		    }
+		    else if (s.equals("16x16")) {
+		    	subSize = 4;
+		    	row = 16;
+		    	col = 16;
+		    }
+		}
 	    
 		subgridSize = new ArrayList<Integer>();
 		subgridSize.add(subSize);

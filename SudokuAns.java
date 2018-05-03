@@ -43,7 +43,7 @@ public class SudokuAns extends JFrame {
 	private ArrayList<ArrayList<ArrayList<Integer>>> solY;
 	private ArrayList<ArrayList<ArrayList<Integer>>> solXY;
 	private String currentSolType = null;
-	private int currentSolIdx = 0;
+	private int currentSolIdx = 0; 
 	
 	public SudokuAns(int puzzleNumber, int subSize, ArrayList<ArrayList<Integer>> puzzle, int x, int y) {
 		super("Puzzle " + puzzleNumber + " Solutions");
