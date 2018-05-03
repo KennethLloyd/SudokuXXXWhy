@@ -27,6 +27,7 @@ public class SudokuUI extends JFrame {
 	private int currentSubgrid = 0;
 	private JButton nextPuzzleButton = null;
 	private JButton prevPuzzleButton = null;
+	private JLabel puzzleNumLabel = null;
 	
 	public SudokuUI() {
 		//default
@@ -91,6 +92,7 @@ public class SudokuUI extends JFrame {
 	    gridPanel = new JPanel();
 	    
 	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    setLocationRelativeTo(null);
 	    setBounds(100, 100, 500, 500);
 	    
 	    initGrid(subSize, null);
@@ -98,7 +100,11 @@ public class SudokuUI extends JFrame {
 	    panel.add(gridPanel,BorderLayout.CENTER);
 	    
 	    bottomPanel = new JPanel();
+	    bottomPanel.setLayout(new GridLayout(1,3));
 		bottomPanel.setSize(50, 50);
+		
+		puzzleNumLabel = new JLabel("Puzzle " + (currentPuzzle+1), SwingConstants.CENTER);
+		bottomPanel.add(puzzleNumLabel);
 		
 		JButton solveButton = new JButton("Solve");
 		solveButton.addActionListener(new ActionListener() {
@@ -131,11 +137,11 @@ public class SudokuUI extends JFrame {
 					}
 					System.out.println();
 				}
-				SudokuAns sudokuAns = new SudokuAns(subSize, finalGrid);
-				//findSolution(subSize, finalGrid)
+				SudokuAns sudokuAns = new SudokuAns(subSize, finalGrid, getX() + getWidth() + 20, getY() - 25);
 			}
 		});
 		bottomPanel.add(solveButton);
+		bottomPanel.add(new JLabel());
 		
 		panel.add(bottomPanel, BorderLayout.SOUTH);
 
@@ -215,6 +221,8 @@ public class SudokuUI extends JFrame {
 		
 		initSubgridLabels(squaredLen);
 		
+		puzzleNumLabel.setText("Puzzle " + (currentPuzzle+1));
+		
 		//remove all components in the panel
 		gridPanel.removeAll();
 		gridPanel.revalidate();
@@ -276,11 +284,12 @@ public class SudokuUI extends JFrame {
 	    	gridPanel.add(subPanels[i]); //add each subgrid to the puzzle
 	    }
 	}
-
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		SudokuUI sudoku = new SudokuUI();
 		sudoku.setTitle("Sudoku XY");
+		//sudoku.setLocationRelativeTo(null);
 		sudoku.setVisible(true);
 	}
 }
