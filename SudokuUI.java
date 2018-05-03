@@ -23,7 +23,7 @@ public class SudokuUI extends JFrame {
 	private JTextField[][] grid = null;
 	private int currentPuzzle = -1;
 	private int n; //number of puzzles
-	int[][] numArr;
+	private int[][] numArr;
 	private int currentSubgrid = 0;
 	private JButton nextPuzzleButton = null;
 	private JButton prevPuzzleButton = null;
@@ -131,6 +131,7 @@ public class SudokuUI extends JFrame {
 					}
 					System.out.println();
 				}
+				SudokuAns sudokuAns = new SudokuAns(subSize, finalGrid);
 				//findSolution(subSize, finalGrid)
 			}
 		});
