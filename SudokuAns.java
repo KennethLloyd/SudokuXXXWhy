@@ -575,6 +575,16 @@ public class SudokuAns extends JFrame {
 					}  
 		        continue;
     		  	}
+    		}else if(solTypes[h].equals("regular")){
+    			int correct = checkGiven(rowcolTotal, grid);
+    			if (correct == 0) {
+	          		try{
+						System.out.println("SOLUTION " + solTypes[h]);
+					}catch(Exception e){
+						e.printStackTrace();
+					}  
+		        continue;
+    		  	}
     		}
 
 			//if (solTypes[h].equals("xy") || solTypes[h].equals("y")) break;
@@ -921,17 +931,21 @@ public class SudokuAns extends JFrame {
 		int[] countArrCol = new int[size+2];
 		int subgridSize = (int)Math.sqrt(size);
 		
+		for (l=1;l<size+2;l++) {
+			countArrRow[l] = 0;
+	    	countArrCol[l] = 0;
+		}
+
 		for(i=0;i<size;i++){
 			for(j=0;j<size;j++){
 				if(puzzle.get(i).get(j) != 0){
 					countArrRow[puzzle.get(i).get(j)]++; 
+					if (countArrRow[puzzle.get(i).get(j)] > 1) return 0;
 				}
 				if(puzzle.get(j).get(i) != 0){
-					countArrCol[puzzle.get(i).get(j)]++;
+					countArrCol[puzzle.get(j).get(i)]++;
+					if (countArrCol[puzzle.get(j).get(i)] > 1) return 0;
 				}
-			}
-			for (k=1;k<size+1;k++) {
-		    	if (countArrRow[k] > 1 || countArrCol[k] > 1) return 0;
 			}
 			for (l=1;l<size+2;l++) {
 				countArrRow[l] = 0;
