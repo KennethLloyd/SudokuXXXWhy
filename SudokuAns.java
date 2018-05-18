@@ -541,15 +541,39 @@ public class SudokuAns extends JFrame {
 				}catch(Exception e){
 					e.printStackTrace();
 				}
-			}else if (solTypes[h].equals("x") || solTypes[h].equals("xy")) {
+			}else if (solTypes[h].equals("x")) {
+		      	int correctX = checkXGiven(rowcolTotal, grid);
 		      	int correct = checkGiven(rowcolTotal, grid);
-		      	if (correct == 0) {
-		      		try{
+		      	if (correctX == 0 || correct == 0) {
+	          		try{
 						System.out.println("SOLUTION " + solTypes[h]);
 					}catch(Exception e){
 						e.printStackTrace();
-					}
-		      		continue;
+					}  
+		        continue;
+    		  	}
+    		}else if (solTypes[h].equals("y")) {
+		      	int correctY = checkYGiven(rowcolTotal, grid);
+		      	int correct = checkGiven(rowcolTotal, grid);
+		      	if (correctY == 0 || correct == 0) {
+	          		try{
+						System.out.println("SOLUTION " + solTypes[h]);
+					}catch(Exception e){
+						e.printStackTrace();
+					} 
+		        continue;
+    		  	}
+    		}else if (solTypes[h].equals("xy")) {
+		      	int correctX = checkXGiven(rowcolTotal, grid);
+		      	int correctY = checkYGiven(rowcolTotal, grid);
+		      	int correct = checkGiven(rowcolTotal, grid);
+		      	if (correctX == 0 || correctY == 0 || correct == 0) {
+	          		try{
+						System.out.println("SOLUTION " + solTypes[h]);
+					}catch(Exception e){
+						e.printStackTrace();
+					}  
+		        continue;
     		  	}
     		}
 
@@ -892,6 +916,62 @@ public class SudokuAns extends JFrame {
 	}
 
 	public int checkGiven(int size, ArrayList<ArrayList<Integer>> puzzle){
+		int i,j,k,l;
+		int[] countArrRow = new int[size+2];
+		int[] countArrCol = new int[size+2];
+		int subgridSize = (int)Math.sqrt(size);
+		
+		for(i=0;i<size;i++){
+			for(j=0;j<size;j++){
+				if(puzzle.get(i).get(j) != 0){
+					countArrRow[puzzle.get(i).get(j)]++; 
+				}
+				if(puzzle.get(j).get(i) != 0){
+					countArrCol[puzzle.get(i).get(j)]++;
+				}
+			}
+			for (k=1;k<size+1;k++) {
+		    	if (countArrRow[k] > 1 || countArrCol[k] > 1) return 0;
+			}
+			for (l=1;l<size+2;l++) {
+				countArrRow[l] = 0;
+		    	countArrCol[l] = 0;
+			}
+		}
+
+		for(i=0; i<size; i+=subgridSize){
+			for(j=0; j<size; j+=subgridSize){
+				int checker = checkGivenSubgrid(size,i,j,puzzle);
+				if(checker==0) return 0;
+			}
+		}	
+
+		return 1;
+	}
+
+	public int checkGivenSubgrid(int size, int row, int col, ArrayList<ArrayList<Integer>> puzzle) {
+		int[] countArrSubGrid = new int[size+2];
+		int subgridSize = (int)Math.sqrt(size);
+
+		int i, j;
+
+		for(i=1;i<size+2;i++){
+			countArrSubGrid[i] = 0;
+		}
+
+		for (i=row;i<row+subgridSize;i++) {
+			for (j=col;j<col+subgridSize;j++) {
+				if (puzzle.get(i).get(j) != 0) {
+					countArrSubGrid[puzzle.get(i).get(j)]++;
+					if(countArrSubGrid[puzzle.get(i).get(j)] > 1) return 0;
+				}
+			}
+		}
+
+		return 1;
+	}
+
+	public int checkXGiven(int size, ArrayList<ArrayList<Integer>> puzzle){
 		int[] countArrLeft = new int[size+2];
   		int[] countArrRight = new int[size+2];
   		int i,j;
@@ -915,6 +995,38 @@ public class SudokuAns extends JFrame {
 		    if (countArrRight[i] > 1 || countArrLeft[i] > 1) return 0;
 		}
   		return 1;
+	}
+
+	public int checkYGiven(int size, ArrayList<ArrayList<Integer>> puzzle){
+		int i,j;
+		int[] countArrLeft = new int[size+2];
+		int[] countArrRight = new int[size+2];
+
+		for (i=1;i<size+2;i++) {
+			countArrLeft[i] = 0;
+		    countArrRight[i] = 0;
+		}
+
+		for (i=0;i<size;i++) {
+		    for (j=0;j<size;j++) {
+		     	if (i==j && puzzle.get(i).get(j) != 0 && i<(size/2)) {
+		        	countArrLeft[puzzle.get(i).get(j)]++;
+
+		      	}
+		      	if (i+j==size-1 && puzzle.get(i).get(j) != 0 && i<(size/2)) {
+		        	countArrRight[puzzle.get(i).get(j)]++; 
+		      	}
+		      	if (j==(size/2) && i>=(size/2) && puzzle.get(i).get(j) != 0){
+		      		countArrLeft[puzzle.get(i).get(j)]++;
+		      		countArrRight[puzzle.get(i).get(j)]++; 
+		      	}
+		    }
+		}
+
+		for (i=1;i<size+1;i++) {
+		    if (countArrRight[i] > 1 || countArrLeft[i] > 1) return 0;
+		}
+		return 1;
 	}
 
 }
